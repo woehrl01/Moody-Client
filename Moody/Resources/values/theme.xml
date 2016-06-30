@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+	<color name="theme_devicedefault_background">#ffffffff</color>
+	<style name="Theme.Custom" parent="@android:style/Theme.DeviceDefault">
+		<item name="android:colorBackground">@color/theme_devicedefault_background</item>
+		<item name="android:windowBackground">?android:attr/colorBackground</item>
+		<item name="android:colorPrimary">#ff1a507c</item>
+		<item name="android:colorPrimaryDark">#ff354859</item>
+		<item name="android:colorAccent">#fff3eb0d</item>
+	</style>
+	<style name="spinnerItemStyle">
+		<item name="android:textSize">25sp</item>
+		<item name="android:textColor">#000000</item>
+	</style>
+</resources>
