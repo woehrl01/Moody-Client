@@ -37,14 +37,18 @@ namespace Moody
             saveandload = new SaveAndLoad();
             try
             {
-                String[] cfg = JsonConvert.DeserializeObject<String[]>(saveandload.LoadText("cfg.json"));
+                String cfgAsJson = saveandload.LoadText("cfg.json");
+                Log.Info("Loading: ", cfgAsJson);
+                String[] cfg = JsonConvert.DeserializeObject<String[]>(cfgAsJson);
                 Log.Info("Loading (Serveraddress)", cfg[0]);
+                Log.Info("Loading (Location)", cfg[1]);
                 address.Text = cfg[0];
                 setLocation(cfg[0]);
                 
+                //TODO Fix load bug
                 foreach(Loc l in locationList)
                 {
-                    if(l.Location.Equals(cfg[1]))
+                    if(l.Location == cfg[1])
                     {
                         Log.Info("Loading (Location)", l.Location);
                         location.SetSelection(l.Identiefier-1);
@@ -53,7 +57,10 @@ namespace Moody
 
                 accept.Enabled = true;
             }
-            catch (Exception) { }
+            catch (Exception e)
+            {
+                Log.Info("Error while loading: ", e.Message);
+            }
 
             address.EditorAction += HandleEditorAction;
 
@@ -335,6 +342,7 @@ namespace Moody
             var documentsPath = System.Environment.GetFolderPath (System.Environment.SpecialFolder.Personal);
             var filePath = Path.Combine (documentsPath, filename);
             System.IO.File.WriteAllText (filePath, text);
+            Log.Info("Save", "Succesful");
         }
         public string LoadText (string filename){
             var documentsPath = System.Environment.GetFolderPath (System.Environment.SpecialFolder.Personal);
