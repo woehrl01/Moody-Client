@@ -1,19 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="Moody.Moody" android:versionCode="1" android:versionName="1.0" android:installLocation="auto">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="Moody.Moody" android:versionCode="1" android:versionName="1.0 - Aristoteles" android:installLocation="auto">
 	<uses-sdk android:minSdkVersion="19" />
 	<uses-permission android:name="android.permission.INTERNET" />
-	<application 
-    android:label="Moody"
-	android:theme="@style/Theme.Custom">
-    <activity
-	android:name="MainActivity"
-	android:label="Moody"			
-	android:theme="@style/Theme.Custom">
-    </activity>
-    <activity
-	android:name="Mood"
-	android:label="Moody"
-	android:theme="@style/Theme.Custom">
-    </activity>
-  </application>
+	<uses-permission android:name="android.permission.VIBRATE" />
+	<application android:label="Moody" android:theme="@style/Theme.Custom" android:icon="@drawable/Icon">
+		<activity android:name="MainActivity" android:label="Moody" android:theme="@style/Theme.Custom"></activity>
+		<activity android:name="Mood" android:label="Moody" android:theme="@style/Theme.Custom"></activity>
+	</application>
 </manifest>

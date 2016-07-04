@@ -18,12 +18,13 @@ namespace Moody
     [Activity(Label = "Moody", MainLauncher = true, Icon = "@drawable/icon", ScreenOrientation = ScreenOrientation.Portrait)]
     public class MainActivity : Activity
     {
-        EditText address;
-        Spinner location;
-        Button accept;
-        List<Loc> locationList;
-        String serveraddress;
-        SaveAndLoad saveandload;
+        public EditText address { get; set; }
+        public Spinner location { get; set; }
+        public Button accept { get; set; }
+        public List<Loc> locationList { get; set; }
+        public string serveraddress { get; set; }
+        public SaveAndLoad saveandload { get; set; }
+        public Vibrator vib { get; set; }
 
         protected override void OnCreate(Bundle bundle)
         {
@@ -34,27 +35,17 @@ namespace Moody
             location = FindViewById<Spinner>(Resource.Id.location);
             accept = FindViewById<Button>(Resource.Id.accept);
 
+            vib = (Vibrator)this.GetSystemService(Context.VibratorService);
+
             saveandload = new SaveAndLoad();
             try
             {
-                String cfgAsJson = saveandload.LoadText("cfg.json");
-                Log.Info("Loading: ", cfgAsJson);
-                String[] cfg = JsonConvert.DeserializeObject<String[]>(cfgAsJson);
-                Log.Info("Loading (Serveraddress)", cfg[0]);
-                Log.Info("Loading (Location)", cfg[1]);
-                address.Text = cfg[0];
-                setLocation(cfg[0]);
-                
-                //TODO Fix load bug
-                foreach(Loc l in locationList)
-                {
-                    if(l.Location == cfg[1])
-                    {
-                        Log.Info("Loading (Location)", l.Location);
-                        location.SetSelection(l.Identiefier-1);
-                    }
-                }
-
+                string json = saveandload.LoadText("cfg.json");
+                Log.Info("Loading: ", json);
+                Dictionary<string,string> cfg = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
+                string loc = cfg["location"];
+                address.Text = cfg["ip"];
+                setLocation(cfg["ip"], cfg["location"]);
                 accept.Enabled = true;
             }
             catch (Exception e)
@@ -66,15 +57,16 @@ namespace Moody
 
             accept.Click += delegate
             {
+                vib.Vibrate(50);
                 if(address.Text != "" && address.Text != null)
                 {
                     if(location.SelectedItem.ToString() != "" && location.SelectedItem.ToString() != null)
                     {
-                        String[] newcfg = new String[2];
-                        newcfg[0] = serveraddress;
-                        newcfg[1] = location.SelectedItem.ToString();
-                        Log.Info("Saving cfg", newcfg[0]);
-                        Log.Info("Saving cfg", newcfg[1]);
+                        Dictionary<String, String> newcfg = new Dictionary<string, string>();
+                        newcfg.Add("ip", serveraddress);
+                        newcfg.Add("location",location.SelectedItem.ToString());
+                        Log.Info("Saving cfg", serveraddress);
+                        Log.Info("Saving cfg", location.SelectedItem.ToString());
                         saveandload.SaveText("cfg.json", JsonConvert.SerializeObject(newcfg, Formatting.Indented));
 
                         Loc currentloc = null;
@@ -103,7 +95,7 @@ namespace Moody
             };
         }
 
-        public void setLocation (String address)
+        public void setLocation (string address, string defaultLocation)
         {
             var progressDialog = ProgressDialog.Show(this, "", "Getting locations...", true);
             progressDialog.SetProgressStyle(ProgressDialogStyle.Spinner);
@@ -114,7 +106,7 @@ namespace Moody
                 try
                 {
                     var locs = await LoadLocationAsync(address);
-                    locs.ForEach(delegate (String loc) { Log.Info("Loc", loc); });
+                    locs.ForEach(delegate (string loc) { Log.Info("Loc", loc); });
                     adapter = new ArrayAdapter<string>(this, Resource.Layout.SpinnerItem, locs);
                     succes = true;
                 }
@@ -136,6 +128,17 @@ namespace Moody
                         {
                             location.Adapter = adapter;
                             accept.Enabled = true;
+                            if(defaultLocation != null)
+                            {
+                                foreach (Loc l in locationList)
+                                {
+                                    if (l.Location.Equals(defaultLocation))
+                                    {
+                                        Log.Info("Loading (Location)", l.Location);
+                                        location.SetSelection(l.Identiefier - 1);
+                                    }
+                                }
+                            }
                         }
                         catch (Exception)
                         {
@@ -146,12 +149,12 @@ namespace Moody
             })).Start();
         }
 
-        public Task<List<String>> LoadLocationAsync(string address)
+        public Task<List<string>> LoadLocationAsync(string address)
         {
             return Task.Run(() => dlLocations(address));
         }
         
-        public List<String> dlLocations(String address)
+        public List<string> dlLocations(string address)
         {
             try
             {
@@ -184,7 +187,7 @@ namespace Moody
 
         private void HandleEditorAction (object sender, TextView.EditorActionEventArgs e)
         {
-            setLocation(address.Text);
+            setLocation(address.Text,null);
             InputMethodManager inputManager = (InputMethodManager)this.GetSystemService(Context.InputMethodService);
             inputManager.HideSoftInputFromWindow(this.CurrentFocus.WindowToken, HideSoftInputFlags.NotAlways);
         }
@@ -193,8 +196,9 @@ namespace Moody
     [Activity(Label = "Main", ScreenOrientation = ScreenOrientation.Portrait)]
     public class Mood : Android.App.Activity
     {
-        public String id;
-        public String address;
+        public string id { get; set; }
+        public string address { get; set; }
+        public Vibrator vib { get; set; }
 
         protected override void OnCreate(Bundle bundle)
         {
@@ -206,6 +210,8 @@ namespace Moody
             ImageButton b2 = FindViewById<ImageButton>(Resource.Id.btwo);
             ImageButton b3 = FindViewById<ImageButton>(Resource.Id.bthree);
             ImageButton b4 = FindViewById<ImageButton>(Resource.Id.bfour);
+
+            vib = (Vibrator)this.GetSystemService(Context.VibratorService);
 
             b1.Click += delegate
             {
@@ -233,6 +239,7 @@ namespace Moody
 
         public void sendMood(int mood)
         {
+            vib.Vibrate(100);
             AlertDialog.Builder alert = new AlertDialog.Builder(this);
             alert.SetTitle("Send Mood: " + getMood(mood) + "?");
             alert.SetPositiveButton("Yes", (senderAlert, args) => {
@@ -273,12 +280,12 @@ namespace Moody
             dialog.Show();
         }
 
-        public Task<bool> sendAsync(String url)
+        public Task<bool> sendAsync(string url)
         {
             return Task.Run(() => sendToServer(url));
         }
 
-        public bool sendToServer(String url)
+        public bool sendToServer(string url)
         {
             try
             {
@@ -315,9 +322,6 @@ namespace Moody
 
     public class Loc
     {
-        private int id;
-        private string location;
-
         public Loc(int id, string location)
         {
             this.Identiefier = id;
@@ -326,14 +330,12 @@ namespace Moody
 
         public string Location
         {
-            get { return location; }
-            set { location = value; }
+            get; set;
         }
 
         public int Identiefier
         {
-            get { return id; }
-            set { id = value; }
+            get; set;
         }
     }
 
