@@ -45,7 +45,7 @@ namespace Moody
                 Dictionary<string,string> cfg = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
                 string loc = cfg["location"];
                 address.Text = cfg["ip"];
-                setLocation(cfg["ip"], cfg["location"]);
+                SetSpinnerLocations(cfg["ip"], cfg["location"]);
                 accept.Enabled = true;
             }
             catch (Exception e)
@@ -95,7 +95,7 @@ namespace Moody
             };
         }
 
-        public void setLocation (string address, string defaultLocation)
+        public void SetSpinnerLocations (string address, string defaultLocation)
         {
             var progressDialog = ProgressDialog.Show(this, "", "Getting locations...", true);
             progressDialog.SetProgressStyle(ProgressDialogStyle.Spinner);
@@ -151,10 +151,10 @@ namespace Moody
 
         public Task<List<string>> LoadLocationAsync(string address)
         {
-            return Task.Run(() => dlLocations(address));
+            return Task.Run(() => DownloadLocations(address));
         }
         
-        public List<string> dlLocations(string address)
+        public List<string> DownloadLocations(string address)
         {
             try
             {
@@ -187,7 +187,7 @@ namespace Moody
 
         private void HandleEditorAction (object sender, TextView.EditorActionEventArgs e)
         {
-            setLocation(address.Text,null);
+            SetSpinnerLocations(address.Text,null);
             InputMethodManager inputManager = (InputMethodManager)this.GetSystemService(Context.InputMethodService);
             inputManager.HideSoftInputFromWindow(this.CurrentFocus.WindowToken, HideSoftInputFlags.NotAlways);
         }
@@ -215,33 +215,33 @@ namespace Moody
 
             b1.Click += delegate
             {
-                sendMood(1);
+                SendMood(1);
             };
 
             b2.Click += delegate
             {
-                sendMood(2);
+                SendMood(2);
             };
 
             b3.Click += delegate
             {
-                sendMood(3);
+                SendMood(3);
             };
 
             b4.Click += delegate
             {
-                sendMood(4);
+                SendMood(4);
             };
 
             id = Intent.GetStringExtra("LocationId") ?? "-1";
             address = Intent.GetStringExtra("Address") ?? "-1";
         }
 
-        public void sendMood(int mood)
+        public void SendMood(int mood)
         {
             vib.Vibrate(100);
             AlertDialog.Builder alert = new AlertDialog.Builder(this);
-            alert.SetTitle("Send Mood: " + getMood(mood) + "?");
+            alert.SetTitle("Send Mood: " + GetMoodDescriptionById(mood) + "?");
             alert.SetPositiveButton("Yes", (senderAlert, args) => {
                 if (!address.Equals("-1"))
                 {
@@ -251,7 +251,7 @@ namespace Moody
 
                     new Thread(new ThreadStart(async () =>
                     {
-                        bool succes = await sendAsync(url);
+                        bool succes = await SendAsync(url);
                         this.RunOnUiThread(() =>
                         {
                             progressDialog.Dismiss();
@@ -280,12 +280,12 @@ namespace Moody
             dialog.Show();
         }
 
-        public Task<bool> sendAsync(string url)
+        public Task<bool> SendAsync(string url)
         {
-            return Task.Run(() => sendToServer(url));
+            return Task.Run(() => SendToServer(url));
         }
 
-        public bool sendToServer(string url)
+        public bool SendToServer(string url)
         {
             try
             {
@@ -302,7 +302,7 @@ namespace Moody
             }
         }
 
-        public String getMood(int mood)
+        public string GetMoodDescriptionById(int mood)
         {
             switch (mood)
             {
