@@ -57,41 +57,45 @@ namespace Moody
 
             accept.Click += delegate
             {
-                vib.Vibrate(50);
-                if(address.Text != "" && address.Text != null)
-                {
-                    if(location.SelectedItem.ToString() != "" && location.SelectedItem.ToString() != null)
-                    {
-                        Dictionary<String, String> newcfg = new Dictionary<string, string>();
-                        newcfg.Add("ip", serveraddress);
-                        newcfg.Add("location",location.SelectedItem.ToString());
-                        Log.Info("Saving cfg", serveraddress);
-                        Log.Info("Saving cfg", location.SelectedItem.ToString());
-                        saveandload.SaveText("cfg.json", JsonConvert.SerializeObject(newcfg, Formatting.Indented));
+				try
+				{
+					vib.Vibrate(50);
+					if (address.Text != "")
+					{
+						if (location.SelectedItem.ToString() != "")
+						{
+							Dictionary<String, String> newcfg = new Dictionary<string, string>();
+							newcfg.Add("ip", serveraddress);
+							newcfg.Add("location", location.SelectedItem.ToString());
+							Log.Info("Saving cfg", serveraddress);
+							Log.Info("Saving cfg", location.SelectedItem.ToString());
+							saveandload.SaveText("cfg.json", JsonConvert.SerializeObject(newcfg, Formatting.Indented));
 
-                        Loc currentloc = null;
-                        foreach (Loc l in locationList)
-                        {
-                            if (l.Identiefier == location.SelectedItemPosition+1)
-                            {
-                                currentloc = l;
-                            }
-                        }
+							Loc currentloc = null;
+							foreach (Loc l in locationList)
+							{
+								if (l.Identiefier == location.SelectedItemPosition + 1)
+								{
+									currentloc = l;
+								}
+							}
 
-                        var moodactivity = new Intent(this, typeof(Mood));
-                        moodactivity.PutExtra("LocationId", currentloc.Identiefier.ToString());
-                        moodactivity.PutExtra("Address", serveraddress);
-                        StartActivity(moodactivity);
-                    }
-                    else
-                    {
-                        Toast.MakeText(this, "You have to select a location!", ToastLength.Long).Show();
-                    }
-                }
-                else
-                {
-                    Toast.MakeText(this, "Server-Address must not be empty!", ToastLength.Long).Show();
-                }        
+							var moodactivity = new Intent(this, typeof(Mood));
+							moodactivity.PutExtra("LocationId", currentloc.Identiefier.ToString());
+							moodactivity.PutExtra("Address", serveraddress);
+							StartActivity(moodactivity);
+						}
+						else
+						{
+							Toast.MakeText(this, "You have to select a location!", ToastLength.Long).Show();
+						}
+					}
+					else
+					{
+						Toast.MakeText(this, "Server-Address must not be empty!", ToastLength.Long).Show();
+					}
+				}
+				catch (Exception) { }
             };
         }
 
@@ -169,7 +173,7 @@ namespace Moody
                 response.Close();
 
                 locationList = JsonConvert.DeserializeObject<List<Loc>>(content);
-                List<String> locs = new List<string>();
+                List<string> locs = new List<string>();
 
                 foreach (Loc l in locationList)
                 {
@@ -353,4 +357,3 @@ namespace Moody
         }
     }
 }
-
