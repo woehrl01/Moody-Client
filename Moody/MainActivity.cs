@@ -95,7 +95,10 @@ namespace Moody
 						Toast.MakeText(this, "Server-Address must not be empty!", ToastLength.Long).Show();
 					}
 				}
-				catch (Exception) { }
+				catch (Exception)
+                {
+                    Toast.MakeText(this, "No locations available!", ToastLength.Long).Show();
+                }
             };
         }
 
