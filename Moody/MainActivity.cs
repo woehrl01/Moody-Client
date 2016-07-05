@@ -12,6 +12,7 @@ using Newtonsoft.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Android.Util;
+using System.Collections.Specialized;
 
 namespace Moody
 {
@@ -252,13 +253,13 @@ namespace Moody
             alert.SetPositiveButton("Yes", (senderAlert, args) => {
                 if (!address.Equals("-1"))
                 {
-                    string url = "http://" + address + "/api/entry/" + mood + "&" + id;
+                    string url = "http://" + address + "/api/entry/";
                     var progressDialog = ProgressDialog.Show(this, "", "Sending mood...", true);
                     progressDialog.SetProgressStyle(ProgressDialogStyle.Spinner);
 
                     new Thread(new ThreadStart(async () =>
                     {
-                        bool succes = await SendAsync(url);
+                        bool succes = await SendAsync(url, mood, Int32.Parse(id));
                         this.RunOnUiThread(() =>
                         {
                             progressDialog.Dismiss();
@@ -287,19 +288,34 @@ namespace Moody
             dialog.Show();
         }
 
-        public Task<bool> SendAsync(string url)
+        public Task<bool> SendAsync(string url, int mood, int location)
         {
-            return Task.Run(() => SendToServer(url));
+            return Task.Run(() => SendToServer(url, mood, location));
         }
 
-        public bool SendToServer(string url)
+        public class MoodyWebClient : WebClient
+        {
+            protected override WebRequest GetWebRequest(Uri uri)
+            {
+                WebRequest w = base.GetWebRequest(uri);
+                w.Timeout = 10 * 1000;
+                return w;
+            }
+        }
+
+        public bool SendToServer(string url, int mood, int location)
         {
             try
             {
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-                request.Timeout = 10000;
-                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                response.Close();
+
+                using (WebClient client = new MoodyWebClient())
+                {
+                    var reqparm = new NameValueCollection();
+                    reqparm.Add("mood", mood.ToString());
+                    reqparm.Add("location", location.ToString());
+                    byte[] responsebytes = client.UploadValues(url, "POST", reqparm);
+                    string responsebody = System.Text.Encoding.UTF8.GetString(responsebytes);
+                }
                 return true;
             }
             catch (Exception e)
