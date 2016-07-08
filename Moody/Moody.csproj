@@ -107,9 +107,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Loc.cs" />
     <Compile Include="MainActivity.cs" />
+    <Compile Include="Mood.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SaveAndLoad.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="CodeMap.dgml" />
