@@ -15,9 +15,9 @@ namespace Moody
     [Activity(Label = "Main", ScreenOrientation = ScreenOrientation.Portrait)]
     public class Mood : Android.App.Activity
     {
-        public string id { get; set; }
-        public string address { get; set; }
-        public Vibrator vib { get; set; }
+        private string id { get; set; }
+        private string address { get; set; }
+        private Vibrator vib { get; set; }
 
         protected override void OnCreate(Bundle bundle)
         {
@@ -30,7 +30,7 @@ namespace Moody
             ImageButton b3 = FindViewById<ImageButton>(Resource.Id.bthree);
             ImageButton b4 = FindViewById<ImageButton>(Resource.Id.bfour);
 
-            vib = (Vibrator)this.GetSystemService(Context.VibratorService);
+            vib = (Vibrator)GetSystemService(Context.VibratorService);
 
             b1.Click += delegate
             {
@@ -61,34 +61,35 @@ namespace Moody
             vib.Vibrate(100);
             AlertDialog.Builder alert = new AlertDialog.Builder(this);
             alert.SetTitle("Send Mood: " + GetMoodDescriptionById(mood) + "?");
-            alert.SetPositiveButton("Yes", (senderAlert, args) => {
-                                                                      if (!address.Equals("-1"))
-                                                                      {
-                                                                          string url = "http://" + address + "/api/entry/";
-                                                                          var progressDialog = ProgressDialog.Show(this, "", "Sending mood...", true);
-                                                                          progressDialog.SetProgressStyle(ProgressDialogStyle.Spinner);
+            alert.SetPositiveButton("Yes", (senderAlert, args) => 
+            {
+                if (!address.Equals("-1"))
+                {
+                    string url = "http://" + address + "/api/entry/";
+                    var progressDialog = ProgressDialog.Show(this, "", "Sending mood...", true);
+                    progressDialog.SetProgressStyle(ProgressDialogStyle.Spinner);
 
-                                                                          new Thread(new ThreadStart(async () =>
-                                                                          {
-                                                                              bool succes = await SendAsync(url, mood, Int32.Parse(id));
-                                                                              this.RunOnUiThread(() =>
-                                                                              {
-                                                                                  progressDialog.Dismiss();
-                                                                                  if (!succes)
-                                                                                  {
-                                                                                      Toast.MakeText(this, "Couldn´t connect to server!", ToastLength.Short).Show();
-                                                                                  }
-                                                                                  else
-                                                                                  {
-                                                                                      Toast.MakeText(this, "Mood sent.", ToastLength.Short).Show();
-                                                                                  }
-                                                                              });     
-                                                                          })).Start();
-                                                                      }
-                                                                      else
-                                                                      {
-                                                                          Toast.MakeText(this, "Invalid server-address!", ToastLength.Short).Show();
-                                                                      }
+                    new Thread(new ThreadStart(async () =>
+                    {
+                        bool succes = await SendAsync(url, mood, Int32.Parse(id));
+                        RunOnUiThread(() =>
+                        {
+                            progressDialog.Dismiss();
+                            if (!succes)
+                            {
+                                Toast.MakeText(this, "Couldn´t connect to server!", ToastLength.Short).Show();
+                            }
+                            else
+                            {
+                                Toast.MakeText(this, "Mood sent.", ToastLength.Short).Show();
+                            }
+                        });     
+                    })).Start();
+                }
+                else
+                {
+                    Toast.MakeText(this, "Invalid server-address!", ToastLength.Short).Show();
+                }
             });
 
             alert.SetNegativeButton("No", (senderAlert, args) => {

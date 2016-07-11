@@ -18,13 +18,13 @@ namespace Moody
     [Activity(Label = "Moody", MainLauncher = true, Icon = "@drawable/icon", ScreenOrientation = ScreenOrientation.Portrait)]
     public class MainActivity : Activity
     {
-        public EditText address { get; set; }
-        public Spinner location { get; set; }
-        public Button accept { get; set; }
-        public List<Loc> locationList { get; set; }
-        public string serveraddress { get; set; }
-        public SaveAndLoad saveandload { get; set; }
-        public Vibrator vib { get; set; }
+        private EditText address { get; set; }
+        private Spinner location { get; set; }
+        private Button accept { get; set; }
+        private List<Loc> locationList { get; set; }
+        private string serveraddress { get; set; }
+        private SaveAndLoad saveandload { get; set; }
+        private Vibrator vib { get; set; }
 
         protected override void OnCreate(Bundle bundle)
         {
@@ -35,7 +35,7 @@ namespace Moody
             location = FindViewById<Spinner>(Resource.Id.location);
             accept = FindViewById<Button>(Resource.Id.accept);
 
-            vib = (Vibrator)this.GetSystemService(Context.VibratorService);
+            vib = (Vibrator)GetSystemService(Context.VibratorService);
 
             saveandload = new SaveAndLoad();
             try
@@ -43,7 +43,6 @@ namespace Moody
                 string json = saveandload.LoadText("cfg.json");
                 Log.Info("Loading: ", json);
                 Dictionary<string,string> cfg = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
-                string loc = cfg["location"];
                 address.Text = cfg["ip"];
                 SetSpinnerLocations(cfg["ip"], cfg["location"]);
                 accept.Enabled = true;
