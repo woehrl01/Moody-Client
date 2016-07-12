@@ -15,9 +15,9 @@ namespace Moody
     [Activity(Label = "Main", ScreenOrientation = ScreenOrientation.Portrait)]
     public class Mood : Android.App.Activity
     {
-        private string id { get; set; }
-        private string address { get; set; }
-        private Vibrator vib { get; set; }
+        private string _id { get; set; }
+        private string _address { get; set; }
+        private Vibrator _vib { get; set; }
 
         protected override void OnCreate(Bundle bundle)
         {
@@ -30,7 +30,7 @@ namespace Moody
             ImageButton b3 = FindViewById<ImageButton>(Resource.Id.bthree);
             ImageButton b4 = FindViewById<ImageButton>(Resource.Id.bfour);
 
-            vib = (Vibrator)GetSystemService(Context.VibratorService);
+            _vib = (Vibrator)GetSystemService(Context.VibratorService);
 
             b1.Click += delegate
             {
@@ -52,26 +52,26 @@ namespace Moody
                 SendMood(4);
             };
 
-            id = Intent.GetStringExtra("LocationId") ?? "-1";
-            address = Intent.GetStringExtra("Address") ?? "-1";
+            _id = Intent.GetStringExtra("LocationId") ?? "-1";
+            _address = Intent.GetStringExtra("Address") ?? "-1";
         }
 
         public void SendMood(int mood)
         {
-            vib.Vibrate(100);
+            _vib.Vibrate(100);
             AlertDialog.Builder alert = new AlertDialog.Builder(this);
             alert.SetTitle("Send Mood: " + GetMoodDescriptionById(mood) + "?");
             alert.SetPositiveButton("Yes", (senderAlert, args) => 
             {
-                if (!address.Equals("-1"))
+                if (!_address.Equals("-1"))
                 {
-                    string url = "http://" + address + "/api/entry/";
+                    string url = "http://" + _address + "/api/entry/";
                     var progressDialog = ProgressDialog.Show(this, "", "Sending mood...", true);
                     progressDialog.SetProgressStyle(ProgressDialogStyle.Spinner);
 
                     new Thread(new ThreadStart(async () =>
                     {
-                        bool succes = await SendAsync(url, mood, Int32.Parse(id));
+                        bool succes = await SendAsync(url, mood, Int32.Parse(_id));
                         RunOnUiThread(() =>
                         {
                             progressDialog.Dismiss();
@@ -81,7 +81,7 @@ namespace Moody
                             }
                             else
                             {
-                                Toast.MakeText(this, "Mood sent.", ToastLength.Short).Show();
+                                Toast.MakeText(this, "Mood sent", ToastLength.Short).Show();
                             }
                         });     
                     })).Start();

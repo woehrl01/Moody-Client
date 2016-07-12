@@ -18,62 +18,62 @@ namespace Moody
     [Activity(Label = "Moody", MainLauncher = true, Icon = "@drawable/icon", ScreenOrientation = ScreenOrientation.Portrait)]
     public class MainActivity : Activity
     {
-        private EditText address { get; set; }
-        private Spinner location { get; set; }
-        private Button accept { get; set; }
-        private List<Loc> locationList { get; set; }
-        private string serveraddress { get; set; }
-        private SaveAndLoad saveandload { get; set; }
-        private Vibrator vib { get; set; }
+        private EditText _address { get; set; }
+        private Spinner _location { get; set; }
+        private Button _accept { get; set; }
+        private List<Loc> _locationList { get; set; }
+        private string _serveraddress { get; set; }
+        private SaveAndLoad _saveandload { get; set; }
+        private Vibrator _vib { get; set; }
 
         protected override void OnCreate(Bundle bundle)
         {
             base.OnCreate(bundle);
             SetContentView(Resource.Layout.Login);
 
-            address = FindViewById<EditText>(Resource.Id.serveraddress);
-            location = FindViewById<Spinner>(Resource.Id.location);
-            accept = FindViewById<Button>(Resource.Id.accept);
+            _address = FindViewById<EditText>(Resource.Id.serveraddress);
+            _location = FindViewById<Spinner>(Resource.Id.location);
+            _accept = FindViewById<Button>(Resource.Id.accept);
 
-            vib = (Vibrator)GetSystemService(Context.VibratorService);
+            _vib = (Vibrator)GetSystemService(Context.VibratorService);
 
-            saveandload = new SaveAndLoad();
+            _saveandload = new SaveAndLoad();
             try
             {
-                string json = saveandload.LoadText("cfg.json");
+                string json = _saveandload.LoadText("cfg.json");
                 Log.Info("Loading: ", json);
                 Dictionary<string,string> cfg = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
-                address.Text = cfg["ip"];
+                _address.Text = cfg["ip"];
                 SetSpinnerLocations(cfg["ip"], cfg["location"]);
-                accept.Enabled = true;
+                _accept.Enabled = true;
             }
             catch (Exception e)
             {
                 Log.Info("Error while loading: ", e.Message);
             }
 
-            address.EditorAction += HandleEditorAction;
+            _address.EditorAction += HandleEditorAction;
 
-            accept.Click += delegate
+            _accept.Click += delegate
             {
 				try
 				{
-					vib.Vibrate(50);
-					if (address.Text != "")
+					_vib.Vibrate(50);
+					if (_address.Text != "")
 					{
-						if (location.SelectedItem.ToString() != "")
+						if (_location.SelectedItem.ToString() != "")
 						{
 							Dictionary<string, string> newcfg = new Dictionary<string, string>();
-							newcfg.Add("ip", serveraddress);
-							newcfg.Add("location", location.SelectedItem.ToString());
-							Log.Info("Saving cfg", serveraddress);
-							Log.Info("Saving cfg", location.SelectedItem.ToString());
-							saveandload.SaveText("cfg.json", JsonConvert.SerializeObject(newcfg, Formatting.Indented));
+							newcfg.Add("ip", _serveraddress);
+							newcfg.Add("location", _location.SelectedItem.ToString());
+							Log.Info("Saving cfg", _serveraddress);
+							Log.Info("Saving cfg", _location.SelectedItem.ToString());
+							_saveandload.SaveText("cfg.json", JsonConvert.SerializeObject(newcfg, Formatting.Indented));
 
 							Loc currentloc = null;
-							foreach (Loc l in locationList)
+							foreach (Loc l in _locationList)
 							{
-								if (l.Identiefier == location.SelectedItemPosition + 1)
+								if (l.Identiefier == _location.SelectedItemPosition + 1)
 								{
 									currentloc = l;
 								}
@@ -81,7 +81,7 @@ namespace Moody
 
 							var moodactivity = new Intent(this, typeof(Mood));
 							moodactivity.PutExtra("LocationId", currentloc.Identiefier.ToString());
-							moodactivity.PutExtra("Address", serveraddress);
+							moodactivity.PutExtra("Address", _serveraddress);
 							StartActivity(moodactivity);
 						}
 						else
@@ -132,16 +132,16 @@ namespace Moody
                     {
                         try
                         {
-                            location.Adapter = adapter;
-                            accept.Enabled = true;
+                            _location.Adapter = adapter;
+                            _accept.Enabled = true;
                             if(defaultLocation != null)
                             {
-                                foreach (Loc l in locationList)
+                                foreach (Loc l in _locationList)
                                 {
                                     if (l.Location.Equals(defaultLocation))
                                     {
                                         Log.Info("Loading (Location)", l.Location);
-                                        location.SetSelection(l.Identiefier - 1);
+                                        _location.SetSelection(l.Identiefier - 1);
                                     }
                                 }
                             }
@@ -174,14 +174,14 @@ namespace Moody
                 reader.Close();
                 response.Close();
 
-                locationList = JsonConvert.DeserializeObject<List<Loc>>(content);
+                _locationList = JsonConvert.DeserializeObject<List<Loc>>(content);
                 List<string> locs = new List<string>();
 
-                foreach (Loc l in locationList)
+                foreach (Loc l in _locationList)
                 {
                     locs.Add(l.Location);
                 }
-                serveraddress = address;
+                _serveraddress = address;
                 return locs;
             }
             catch (Exception e)
@@ -193,7 +193,7 @@ namespace Moody
 
         private void HandleEditorAction (object sender, TextView.EditorActionEventArgs e)
         {
-            SetSpinnerLocations(address.Text,null);
+            SetSpinnerLocations(_address.Text,null);
             InputMethodManager inputManager = (InputMethodManager)GetSystemService(InputMethodService);
             inputManager.HideSoftInputFromWindow(CurrentFocus.WindowToken, HideSoftInputFlags.NotAlways);
         }
