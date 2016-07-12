@@ -181,7 +181,6 @@ namespace Moody
                 {
                     locs.Add(l.Location);
                 }
-
                 _serveraddress = address;
                 return locs;
             }
