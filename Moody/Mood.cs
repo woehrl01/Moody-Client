@@ -92,8 +92,9 @@ namespace Moody
                 }
             });
 
-            alert.SetNegativeButton("No", (senderAlert, args) => {
-                                                                     Toast.MakeText(this, "Cancelled!", ToastLength.Short).Show();
+            alert.SetNegativeButton("No", (senderAlert, args) => 
+            {
+                Toast.MakeText(this, "Cancelled!", ToastLength.Short).Show();
             });
 
             Dialog dialog = alert.Create();
