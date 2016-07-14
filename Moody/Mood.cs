@@ -56,7 +56,7 @@ namespace Moody
             _address = Intent.GetStringExtra("Address") ?? "-1";
         }
 
-        public void SendMood(int mood)
+        private void SendMood(int mood)
         {
             _vib.Vibrate(100);
             AlertDialog.Builder alert = new AlertDialog.Builder(this);
@@ -100,12 +100,12 @@ namespace Moody
             dialog.Show();
         }
 
-        public Task<bool> SendAsync(string url, int mood, int location)
+        private Task<bool> SendAsync(string url, int mood, int location)
         {
             return Task.Run(() => SendToServer(url, mood, location));
         }
 
-        public class MoodyWebClient : WebClient
+        private class MoodyWebClient : WebClient
         {
             protected override WebRequest GetWebRequest(Uri uri)
             {
@@ -115,16 +115,18 @@ namespace Moody
             }
         }
 
-        public bool SendToServer(string url, int mood, int location)
+        private bool SendToServer(string url, int mood, int location)
         {
             try
             {
 
                 using (WebClient client = new MoodyWebClient())
                 {
-                    var reqparm = new NameValueCollection();
-                    reqparm.Add("mood", mood.ToString());
-                    reqparm.Add("location", location.ToString());
+                    var reqparm = new NameValueCollection
+                    {
+                        {"mood", mood.ToString()},
+                        { "location", location.ToString()}
+                    };
                     byte[] responsebytes = client.UploadValues(url, "POST", reqparm);
                     string responsebody = System.Text.Encoding.UTF8.GetString(responsebytes);
                 }
@@ -137,7 +139,7 @@ namespace Moody
             }
         }
 
-        public string GetMoodDescriptionById(int mood)
+        private string GetMoodDescriptionById(int mood)
         {
             switch (mood)
             {

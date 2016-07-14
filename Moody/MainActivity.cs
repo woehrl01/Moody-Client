@@ -63,10 +63,12 @@ namespace Moody
 					{
 						if (_location.SelectedItem.ToString() != "")
 						{
-							Dictionary<string, string> newcfg = new Dictionary<string, string>();
-							newcfg.Add("ip", _serveraddress);
-							newcfg.Add("location", _location.SelectedItem.ToString());
-							Log.Info("Saving cfg", _serveraddress);
+						    Dictionary<string, string> newcfg = new Dictionary<string, string>
+						    {
+						        {"ip", _serveraddress},
+						        {"location", _location.SelectedItem.ToString()}
+						    };
+						    Log.Info("Saving cfg", _serveraddress);
 							Log.Info("Saving cfg", _location.SelectedItem.ToString());
 							_saveandload.SaveText("cfg.json", JsonConvert.SerializeObject(newcfg, Formatting.Indented));
 
@@ -101,7 +103,7 @@ namespace Moody
             };
         }
 
-        public void SetSpinnerLocations (string address, string defaultLocation)
+        private void SetSpinnerLocations (string address, string defaultLocation)
         {
             var progressDialog = ProgressDialog.Show(this, "", "Getting locations...", true);
             progressDialog.SetProgressStyle(ProgressDialogStyle.Spinner);
@@ -155,12 +157,12 @@ namespace Moody
             })).Start();
         }
 
-        public Task<List<string>> LoadLocationAsync(string address)
+        private Task<List<string>> LoadLocationAsync(string address)
         {
             return Task.Run(() => DownloadLocations(address));
         }
-        
-        public List<string> DownloadLocations(string address)
+
+        private List<string> DownloadLocations(string address)
         {
             try
             {
