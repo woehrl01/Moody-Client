@@ -126,6 +126,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="CodeMap.dgml" />
+    <None Include="Map.xps" />
     <None Include="packages.config" />
     <None Include="Resources\AboutResources.txt" />
     <None Include="Assets\AboutAssets.txt" />
