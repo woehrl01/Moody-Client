@@ -59,10 +59,6 @@ namespace Moody
         private void SendMood(int mood)
         {
             _vib.Vibrate(100);
-            AlertDialog.Builder alert = new AlertDialog.Builder(this);
-            alert.SetTitle("Send Mood: " + GetMoodDescriptionById(mood) + "?");
-            alert.SetPositiveButton("Yes", (senderAlert, args) => 
-            {
                 if (!_address.Equals("-1"))
                 {
                     string url = "http://" + _address + "/api/entry/";
@@ -90,15 +86,6 @@ namespace Moody
                 {
                     Toast.MakeText(this, "Invalid server-address!", ToastLength.Short).Show();
                 }
-            });
-
-            alert.SetNegativeButton("No", (senderAlert, args) => 
-            {
-                Toast.MakeText(this, "Cancelled!", ToastLength.Short).Show();
-            });
-
-            Dialog dialog = alert.Create();
-            dialog.Show();
         }
 
         private Task<bool> SendAsync(string url, int mood, int location)
