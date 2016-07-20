@@ -12,6 +12,7 @@ using Newtonsoft.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Android.Util;
+using Android.Views;
 
 namespace Moody
 {
@@ -30,6 +31,8 @@ namespace Moody
         {
             base.OnCreate(bundle);
             SetContentView(Resource.Layout.Login);
+
+            Window.AddFlags(WindowManagerFlags.KeepScreenOn);
 
             _address = FindViewById<EditText>(Resource.Id.serveraddress);
             _location = FindViewById<Spinner>(Resource.Id.location);
